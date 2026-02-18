@@ -8,9 +8,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = "django-insecure-cambia-esta-clave-en-produccion-abc123xyz"
 
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["luisss22.pythonanywhere.com"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -95,10 +95,10 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # Configuraciones de sesión
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SECURE = False  # Cambiar a True en producción con HTTPS
+SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_AGE = 86400  # 24 horas
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
 # CSRF
 CSRF_COOKIE_HTTPONLY = False  # Necesario para JavaScript
-CSRF_COOKIE_SECURE = False  # Cambiar a True en producción con HTTPS
+CSRF_COOKIE_SECURE = True
