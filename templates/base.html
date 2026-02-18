@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistema de Citas{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,.75);
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 2px 10px;
+            transition: all 0.3s;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: #fff;
+            background: rgba(255,255,255,.15);
+        }
+        .sidebar .nav-link i { margin-right: 10px; width: 20px; text-align: center; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+        .stat-card {
+            transition: transform 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-3px); }
+        .badge-pendiente { background-color: #ffc107; color: #000; }
+        .badge-confirmada { background-color: #198754; }
+        .badge-cancelada { background-color: #dc3545; }
+        .badge-completada { background-color: #0d6efd; }
+        .badge-no_asistio { background-color: #6c757d; }
+        .brand-title {
+            color: #fff;
+            font-size: 1.3rem;
+            font-weight: 700;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,.1);
+        }
+        .whatsapp-btn {
+            background-color: #25D366;
+            border-color: #25D366;
+            color: #fff;
+        }
+        .whatsapp-btn:hover {
+            background-color: #1ebe57;
+            border-color: #1ebe57;
+            color: #fff;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse p-0">
+                <div class="brand-title">
+                    <i class="bi bi-calendar-check"></i> Sistema de Citas
+                </div>
+                <ul class="nav flex-column mt-3">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'cliente' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'cliente_lista' %}">
+                            <i class="bi bi-people"></i> Clientes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name in 'cita_lista,cita_crear,cita_detalle,cita_editar' %}active{% endif %}" href="{% url 'cita_lista' %}">
+                            <i class="bi bi-calendar3"></i> Citas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'reporte' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'reporte_asistencia' %}">
+                            <i class="bi bi-graph-up"></i> Reportes
+                        </a>
+                    </li>
+                    <hr class="text-white mx-3">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">
+                            <i class="bi bi-box-arrow-left"></i> Cerrar sesión
+                        </a>
+                    </li>
+                </ul>
+                <div class="text-center text-white-50 small mt-auto p-3" style="position: absolute; bottom: 0; width: 100%;">
+                    {% if user.is_authenticated %}
+                    <i class="bi bi-person-circle"></i> {{ user.username }}
+                    {% endif %}
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

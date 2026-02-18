@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Reporte de Asistencia - Sistema de Citas{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-graph-up"></i> Reporte de Asistencia</h2>
+
+<!-- Filtros -->
+<div class="card mb-4">
+    <div class="card-header bg-white">
+        <h6 class="mb-0"><i class="bi bi-funnel"></i> Filtros</h6>
+    </div>
+    <div class="card-body">
+        <form method="get">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Desde</label>
+                    {{ form.fecha_inicio }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Hasta</label>
+                    {{ form.fecha_fin }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Estado</label>
+                    {{ form.estado }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Cliente</label>
+                    {{ form.cliente }}
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">
+                        <i class="bi bi-search"></i> Filtrar
+                    </button>
+                    <a href="{% url 'reporte_asistencia' %}" class="btn btn-outline-secondary" title="Limpiar">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Estadísticas -->
+<div class="row g-3 mb-4">
+    <div class="col-md-2">
+        <div class="card stat-card text-center h-100">
+            <div class="card-body py-3">
+                <div class="h3 fw-bold text-primary">{{ total }}</div>
+                <small class="text-muted">Total Citas</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card stat-card text-center h-100">
+            <div class="card-body py-3">
+                <div class="h3 fw-bold text-success">{{ asistieron }}</div>
+                <small class="text-muted">Asistieron</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card stat-card text-center h-100">
+            <div class="card-body py-3">
+                <div class="h3 fw-bold text-danger">{{ no_asistieron }}</div>
+                <small class="text-muted">No asistieron</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card stat-card text-center h-100">
+            <div class="card-body py-3">
+                <div class="h3 fw-bold text-warning">{{ sin_registro }}</div>
+                <small class="text-muted">Sin registro</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card stat-card text-center h-100">
+            <div class="card-body py-3">
+                <div class="h3 fw-bold text-info">{{ confirmadas }}</div>
+                <small class="text-muted">Confirmadas</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card stat-card text-center h-100">
+            <div class="card-body py-3">
+                <div class="h3 fw-bold" style="color: #198754;">{{ porcentaje_asistencia }}%</div>
+                <small class="text-muted">% Asistencia</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Barra de progreso de asistencia -->
+{% if total > 0 %}
+<div class="card mb-4">
+    <div class="card-body">
+        <h6 class="mb-3">Distribución de Asistencia</h6>
+        <div class="progress" style="height: 30px;">
+            {% if asistieron > 0 %}
+            <div class="progress-bar bg-success" style="width: {% widthratio asistieron total 100 %}%;" title="Asistieron: {{ asistieron }}">
+                {{ asistieron }} asistieron
+            </div>
+            {% endif %}
+            {% if no_asistieron > 0 %}
+            <div class="progress-bar bg-danger" style="width: {% widthratio no_asistieron total 100 %}%;" title="No asistieron: {{ no_asistieron }}">
+                {{ no_asistieron }} no asistieron
+            </div>
+            {% endif %}
+            {% if sin_registro > 0 %}
+            <div class="progress-bar bg-warning text-dark" style="width: {% widthratio sin_registro total 100 %}%;" title="Sin registro: {{ sin_registro }}">
+                {{ sin_registro }} sin registro
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Citas sin confirmar asistencia (pasadas) -->
+{% if sin_confirmar_asistencia %}
+<div class="card mb-4 border-warning">
+    <div class="card-header bg-warning text-dark">
+        <h6 class="mb-0">
+            <i class="bi bi-exclamation-triangle"></i> 
+            Citas pasadas sin registro de asistencia ({{ sin_confirmar_asistencia.count }})
+        </h6>
+    </div>
+    <div class="card-body">
+        <p class="text-muted small">Estas citas ya pasaron pero no se ha registrado si el cliente asistió o no. Es importante registrar la asistencia para mantener el reporte actualizado.</p>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Cliente</th>
+                        <th>Motivo</th>
+                        <th>Estado Cita</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cita in sin_confirmar_asistencia %}
+                    <tr>
+                        <td>{{ cita.fecha|date:"d/m/Y" }}</td>
+                        <td>{{ cita.hora|time:"H:i" }}</td>
+                        <td>{{ cita.cliente.nombre }}</td>
+                        <td>{{ cita.motivo|truncatechars:30 }}</td>
+                        <td><span class="badge badge-{{ cita.estado }}">{{ cita.get_estado_display }}</span></td>
+                        <td>
+                            <a href="{% url 'registrar_asistencia' cita.pk %}" class="btn btn-sm btn-warning">
+                                <i class="bi bi-check2-square"></i> Registrar
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Tabla completa -->
+<div class="card">
+    <div class="card-header bg-white">
+        <h6 class="mb-0"><i class="bi bi-table"></i> Detalle de Citas ({{ total }})</h6>
+    </div>
+    <div class="card-body">
+        {% if citas %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Cliente</th>
+                        <th>Motivo</th>
+                        <th>Estado</th>
+                        <th>Asistencia</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cita in citas %}
+                    <tr>
+                        <td>{{ cita.fecha|date:"d/m/Y" }}</td>
+                        <td>{{ cita.hora|time:"H:i" }}</td>
+                        <td>{{ cita.cliente.nombre }}</td>
+                        <td>{{ cita.motivo|truncatechars:30 }}</td>
+                        <td><span class="badge badge-{{ cita.estado }}">{{ cita.get_estado_display }}</span></td>
+                        <td>
+                            {% if cita.asistio == True %}
+                                <span class="badge bg-success"><i class="bi bi-check-lg"></i> Sí</span>
+                            {% elif cita.asistio == False %}
+                                <span class="badge bg-danger"><i class="bi bi-x-lg"></i> No</span>
+                            {% elif cita.es_pasada and cita.estado != 'cancelada' %}
+                                <span class="badge bg-warning text-dark"><i class="bi bi-exclamation"></i> Sin registro</span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'cita_detalle' cita.pk %}" class="btn btn-sm btn-outline-primary" title="Ver">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            {% if cita.asistio is None and cita.estado != 'cancelada' %}
+                            <a href="{% url 'registrar_asistencia' cita.pk %}" class="btn btn-sm btn-outline-success" title="Registrar asistencia">
+                                <i class="bi bi-check2-square"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-4">
+            <p>No se encontraron citas con los filtros seleccionados.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

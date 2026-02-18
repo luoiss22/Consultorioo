@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Enviar WhatsApp - Sistema de Citas{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h4 class="mb-0"><i class="bi bi-whatsapp text-success"></i> Enviar Notificación por WhatsApp</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> 
+                    Al hacer clic en el botón de abajo, se abrirá WhatsApp Web (o la app de WhatsApp) con el mensaje 
+                    pre-escrito incluyendo el enlace de confirmación para el cliente.
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Datos de la Cita</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-person"></i> <strong>{{ cita.cliente.nombre }}</strong></li>
+                            <li><i class="bi bi-phone"></i> {{ cita.cliente.telefono }}</li>
+                            <li><i class="bi bi-calendar"></i> {{ cita.fecha|date:"d/m/Y" }}</li>
+                            <li><i class="bi bi-clock"></i> {{ cita.hora|time:"H:i" }}</li>
+                            <li><i class="bi bi-card-text"></i> {{ cita.motivo }}</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Vista previa del mensaje</h6>
+                        <div class="border rounded p-3 bg-light" style="white-space: pre-wrap; font-size: 0.85rem;">{{ mensaje }}</div>
+                    </div>
+                </div>
+                
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{{ url_whatsapp }}" target="_blank" class="btn whatsapp-btn btn-lg">
+                        <i class="bi bi-whatsapp"></i> Abrir WhatsApp y Enviar
+                    </a>
+                    <a href="{% url 'cita_detalle' cita.pk %}" class="btn btn-outline-primary">
+                        <i class="bi bi-eye"></i> Ver Cita
+                    </a>
+                    <a href="{% url 'cita_lista' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Volver a Citas
+                    </a>
+                </div>
+                
+                <div class="mt-4">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>Importante:</strong> Asegúrate de que el número de teléfono del cliente incluya el código de país 
+                        (ej: <code>52</code> para México). El formato debe ser: <code>521234567890</code> (sin +, sin espacios, sin guiones).
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

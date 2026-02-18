@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}{{ cliente.nombre }} - Sistema de Citas{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-person-circle"></i> Información del Cliente</h5>
+            </div>
+            <div class="card-body">
+                <h4>{{ cliente.nombre }}</h4>
+                <p><i class="bi bi-whatsapp text-success"></i> {{ cliente.telefono }}</p>
+                {% if cliente.email %}
+                <p><i class="bi bi-envelope"></i> {{ cliente.email }}</p>
+                {% endif %}
+                {% if cliente.notas %}
+                <p><i class="bi bi-sticky"></i> {{ cliente.notas }}</p>
+                {% endif %}
+                <p>
+                    Estado: 
+                    {% if cliente.activo %}
+                        <span class="badge bg-success">Activo</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Inactivo</span>
+                    {% endif %}
+                </p>
+                <p class="text-muted small">Registrado: {{ cliente.creado|date:"d/m/Y H:i" }}</p>
+                
+                <div class="d-flex gap-2 mt-3">
+                    <a href="{% url 'cita_crear' %}?cliente={{ cliente.pk }}" class="btn btn-success btn-sm">
+                        <i class="bi bi-calendar-plus"></i> Nueva Cita
+                    </a>
+                    <a href="{% url 'cliente_editar' cliente.pk %}" class="btn btn-warning btn-sm">
+                        <i class="bi bi-pencil"></i> Editar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-calendar3"></i> Historial de Citas</h5>
+                <span class="badge bg-primary">{{ citas.count }} citas</span>
+            </div>
+            <div class="card-body">
+                {% if citas %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Motivo</th>
+                                <th>Estado</th>
+                                <th>Asistencia</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cita in citas %}
+                            <tr>
+                                <td>{{ cita.fecha|date:"d/m/Y" }}</td>
+                                <td>{{ cita.hora|time:"H:i" }}</td>
+                                <td>{{ cita.motivo|truncatechars:40 }}</td>
+                                <td><span class="badge badge-{{ cita.estado }}">{{ cita.get_estado_display }}</span></td>
+                                <td>
+                                    {% if cita.asistio == True %}
+                                        <span class="badge bg-success"><i class="bi bi-check"></i> Sí</span>
+                                    {% elif cita.asistio == False %}
+                                        <span class="badge bg-danger"><i class="bi bi-x"></i> No</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'cita_detalle' cita.pk %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <p>Este cliente no tiene citas registradas.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

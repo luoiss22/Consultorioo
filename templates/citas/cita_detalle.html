@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Cita: {{ cita.cliente.nombre }} - Sistema de Citas{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="bi bi-calendar-check"></i> Detalle de Cita</h4>
+                <span class="badge badge-{{ cita.estado }} fs-6">{{ cita.get_estado_display }}</span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Cliente</h6>
+                        <p class="fs-5">
+                            <a href="{% url 'cliente_detalle' cita.cliente.pk %}">
+                                <i class="bi bi-person-circle"></i> {{ cita.cliente.nombre }}
+                            </a>
+                        </p>
+                        <p><i class="bi bi-whatsapp text-success"></i> {{ cita.cliente.telefono }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Fecha y Hora</h6>
+                        <p class="fs-5">
+                            <i class="bi bi-calendar"></i> {{ cita.fecha|date:"d/m/Y" }}
+                            <br>
+                            <i class="bi bi-clock"></i> {{ cita.hora|time:"H:i" }}
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="text-muted">Motivo</h6>
+                    <p>{{ cita.motivo }}</p>
+                </div>
+                
+                {% if cita.notas %}
+                <div class="mb-4">
+                    <h6 class="text-muted">Notas</h6>
+                    <p>{{ cita.notas }}</p>
+                </div>
+                {% endif %}
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Asistencia</h6>
+                        <p>
+                            {% if cita.asistio == True %}
+                                <span class="badge bg-success fs-6"><i class="bi bi-check-lg"></i> Sí asistió</span>
+                            {% elif cita.asistio == False %}
+                                <span class="badge bg-danger fs-6"><i class="bi bi-x-lg"></i> No asistió</span>
+                            {% elif cita.es_pasada and cita.estado != 'cancelada' %}
+                                <span class="badge bg-warning text-dark fs-6"><i class="bi bi-exclamation-triangle"></i> Sin confirmar asistencia</span>
+                            {% else %}
+                                <span class="text-muted">Pendiente</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Creada</h6>
+                        <p class="text-muted">{{ cita.creado|date:"d/m/Y H:i" }}</p>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{% url 'cita_whatsapp' cita.pk %}" class="btn whatsapp-btn">
+                        <i class="bi bi-whatsapp"></i> Enviar WhatsApp
+                    </a>
+                    {% if cita.es_pasada and cita.asistio is None and cita.estado != 'cancelada' %}
+                    <a href="{% url 'registrar_asistencia' cita.pk %}" class="btn btn-success">
+                        <i class="bi bi-check2-square"></i> Registrar Asistencia
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'cita_editar' cita.pk %}" class="btn btn-warning">
+                        <i class="bi bi-pencil"></i> Editar
+                    </a>
+                    <a href="{% url 'cita_eliminar' cita.pk %}" class="btn btn-outline-danger">
+                        <i class="bi bi-trash"></i> Eliminar
+                    </a>
+                    <a href="{% url 'cita_lista' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
